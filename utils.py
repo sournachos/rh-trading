@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 import math
+import os
 from typing import Optional
 import pyotp
 import robin_stocks.robinhood as r
@@ -8,10 +10,11 @@ def round_to_nearest_half_dollar(price: float):
     return math.ceil(price * 2) / 2
 
 def log_in():
-    totp  = pyotp.TOTP("urMFACode").now()
+    load_dotenv()
+    totp  = pyotp.TOTP(os.getenv("MFA_CODE")).now()
     login = r.login(
-        'email@email.com',
-        'password',
+        os.getenv('EMAIL'),
+        os.getenv('PASSWORD'),
         mfa_code=totp
         )
     
