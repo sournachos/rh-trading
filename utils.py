@@ -77,11 +77,11 @@ def get_nearest_out_of_the_money_option_contract_details(ticker, call_or_put, ex
         if not exp_date:
             today = datetime.today()
             next_friday = (today + timedelta((4-today.weekday()) % 7)).strftime('%Y-%m-%d')
-        details = r.options.find_options_by_expiration_and_strike(
-            inputSymbols=ticker,
-            optionType=call_or_put,
-            expirationDate=exp_date if exp_date else next_friday,
-            strikePrice=get_closest_strike_price(ticker, call_or_put)
+            details = r.options.find_options_by_expiration_and_strike(
+                inputSymbols=ticker,
+                optionType=call_or_put,
+                expirationDate=exp_date if exp_date else next_friday,
+                strikePrice=get_closest_strike_price(ticker, call_or_put)
             )[0]
         if details["state"] == 'active' and details["tradability"] == 'tradable':
             return {
