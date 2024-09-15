@@ -2,7 +2,7 @@
 <br/>
 
 <p align="center">
-  <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/sournachos/Most-Viral-Politician">
+  <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/sournachos/rh-trading">
   <img src="https://img.shields.io/github/issues/sournachos/rh-trading">
   <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/sournachos/rh-trading">
   <a href="LICENSE">
@@ -36,7 +36,7 @@ The site facilitates access to information about the congressmen and congresswom
 ## :seedling: Requirements To Use
 - Python is installed
 - Clone repositoty
-- Install deps from requirements.txt
+- Install deps -> `pip install -r requirements.txt`
 - As of 9/15 there's only a couple functions in `utils.py` 
 
 ## :rocket: Technologies 
