@@ -51,29 +51,30 @@ def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
 
 
 def get_closest_strike_price(ticker: str, option_type: OptionType) -> Decimal:
+    # TODO: Performance can be improved by getting a list of all strike prices
+    # for that ticker, sort that array and grab the closest one above the current price.
+    # It'll be 1 API call + static array sorting and indexing vs a max of 5 API calls
     price = Decimal(r.stocks.get_latest_price(ticker)[0])
-    half_dollar_increment = round_to_nearest_half_dollar(price)
+    nearest_half_dollar_increment = round_to_nearest_half_dollar(price)
     logger.info(
         f"Current Stock price: {price} \nFinding closest out-of-the-money strike price..."
     )
-    # TODO: This I don't understand.
-    # Why are we automatically adding .5 if the first strike price is not found?
-    # Would this depend on the option type?
+    
     if r.options.find_options_by_strike(
-        ticker, half_dollar_increment, option_type, info="expiration_date"
+        ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
     ):
-        logger.info(f"Closest strike price: {half_dollar_increment}")
-        return half_dollar_increment
-    if r.options.find_options_by_strike(
-        ticker,
-        (half_dollar_increment + Decimal(0.5)),
-        option_type,
-        info="expiration_date",
-    ):
-        logger.info(f"Closest strike price: {half_dollar_increment + .5}")
-        return half_dollar_increment + Decimal(0.5)
+        logger.info(f"Closest strike price: {nearest_half_dollar_increment}")
+        return nearest_half_dollar_increment
+    
+    for i in range(4):
+        nearest_half_dollar_increment = nearest_half_dollar_increment + Decimal(0.5)
+        if r.options.find_options_by_strike(
+        ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
+        ):
+            logger.info(f"Closest strike price: {nearest_half_dollar_increment}")
+            return nearest_half_dollar_increment
     raise NoStrikePriceError(
-        f"No strike price found for {ticker} within .5 to 1 dollar of the current stock price"
+        f"No strike price found for {ticker} within 2.5 dollars of the current stock price"
     )
 
 
@@ -137,7 +138,7 @@ def get_nearest_out_of_the_money_option_contract_details(
 
 def buy_option_limit_order(
     ticker: str,
-    call_or_put: Op[OptionType],
+    call_or_put: OptionType,
     strike_price: float | Decimal,
     exp_date: str,
     quantity: int,
