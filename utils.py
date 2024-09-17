@@ -18,8 +18,11 @@ class OptionType(str, Enum):
     put = "put"
 
 
-def round_to_nearest_half_dollar(price: float | Decimal) -> Decimal:
-    return Decimal(math.ceil(price * 2) / 2)
+def round_to_nearest_half_dollar(price: float | Decimal, option_type: OptionType) -> Decimal:
+    if option_type == 'call':
+        return Decimal(math.ceil(price * 2) / 2)
+    if option_type == 'put':
+        return Decimal(math.floor(price * 2) / 2)
 
 
 def log_in() -> dict | None:
@@ -55,7 +58,7 @@ def get_closest_strike_price(ticker: str, option_type: OptionType) -> Decimal:
     # for that ticker, sort that array and grab the closest one above the current price.
     # It'll be 1 API call + static array sorting and indexing vs a max of 5 API calls
     price = Decimal(r.stocks.get_latest_price(ticker)[0])
-    nearest_half_dollar_increment = round_to_nearest_half_dollar(price)
+    nearest_half_dollar_increment = round_to_nearest_half_dollar(price, option_type)
     logger.info(
         f"Current Stock price: {price} \nFinding closest out-of-the-money strike price..."
     )
@@ -67,7 +70,11 @@ def get_closest_strike_price(ticker: str, option_type: OptionType) -> Decimal:
         return nearest_half_dollar_increment
     
     for i in range(4):
-        nearest_half_dollar_increment = nearest_half_dollar_increment + Decimal(0.5)
+        if option_type == 'call':
+            nearest_half_dollar_increment = nearest_half_dollar_increment + Decimal(0.5)
+        if option_type == 'put':
+            nearest_half_dollar_increment = nearest_half_dollar_increment - Decimal(0.5)
+
         if r.options.find_options_by_strike(
         ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
         ):
