@@ -18,6 +18,29 @@ class OptionType(str, Enum):
     put = "put"
 
 
+class Interval(str, Enum):
+    five_min = "5minute"
+    ten_min = "10minute"
+    hour = "hour"
+    day = "day"
+    week = "week"
+    
+
+class Span(str, Enum):
+    day = "day"
+    week = "week"
+    month = "month"
+    three_months = "3months"
+    year = "year"
+    five_years = "5year"
+
+
+class Bounds(str, Enum):
+    regular = "regular"
+    trading = "trading"
+    extended = "extended"
+
+
 def round_to_nearest_half_dollar(price: float | Decimal, option_type: OptionType) -> Decimal:
     if option_type == 'call':
         return Decimal(math.ceil(price * 2) / 2)
@@ -30,11 +53,13 @@ def log_in() -> dict | None:
     totp = pyotp.TOTP(os.getenv("MFA_CODE")).now()
     r.login(os.getenv("EMAIL"), os.getenv("PASSWORD"), mfa_code=totp)
 
+
 def current_stock_price(ticker: str| list[str]) -> dict | list[dict]:
     price_list = r.stocks.get_latest_price(ticker)
     if len(price_list) == 1:
         return Decimal(price_list[0])
     return [Decimal(price) for price in price_list]
+
 
 def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
     """
@@ -56,6 +81,26 @@ def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
     if len(curated_info) == 1:
         return curated_info[0]
     return curated_info
+
+# Note: Extended and Trading hours FORCE you to use a 'day' time window - whatever
+# Note: Default args for the daily pre-market prep - shift args for subsequent calls as needed
+def get_stock_historical_price_deltas(
+    ticker: str | list[str], 
+    candle_interval: Optional[Interval] = Interval.ten_min,
+    time_window: Optional[Span] = Span.day,
+    trading_hours: Optional[Bounds] = Bounds.extended
+    ) -> list[dict]:
+    curated_data = []
+    raw_data = r.stocks.get_stock_historicals(ticker, candle_interval, time_window, trading_hours)
+    for entry in raw_data:
+        curated_data.append({
+            # Time is UTC so market hours are 14:30 to 21:00
+            "datetime": entry["begins_at"],
+            "open_to_close_price_delta": (
+                str(Decimal(entry["close_price"]) - Decimal(entry["open_price"]))
+            ),
+        })
+    return curated_data
 
 
 def get_closest_strike_price(ticker: str, option_type: OptionType) -> Decimal:

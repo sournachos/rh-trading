@@ -1,17 +1,21 @@
 import sys
 sys.path.append("../")
-from utils import log_in, get_closest_strike_price, current_stock_price
+from utils import log_in, get_closest_strike_price, get_stock_historical_price_deltas, current_stock_price
 
 log_in()
 
 # Just testing shit
-apple_call_strike_price = get_closest_strike_price('aapl', 'call')
-apple_put_strike_price = get_closest_strike_price('aapl', 'put')
+get_stock_historical_price_deltas('aapl')
+# apple_call_strike_price = get_closest_strike_price('aapl', 'call')
+# apple_put_strike_price = get_closest_strike_price('aapl', 'put')
 
-print(f"\n\nThe current stock price {current_stock_price('aapl')}")
-print(f"The closest call strike price {apple_call_strike_price}")
-print(f"The closest put strike price {apple_put_strike_price}")
+# print(f"\n\nThe current stock price {current_stock_price('aapl')}")
+# print(f"The closest call strike price {apple_call_strike_price}")
+# print(f"The closest put strike price {apple_put_strike_price}")
 #
+# 
+# 
+# 
 #----------------------------------------------------------------------------
 #
 # Alright so I think for a first strat something like comparing the rate of
