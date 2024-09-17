@@ -24,7 +24,7 @@ class Interval(str, Enum):
     hour = "hour"
     day = "day"
     week = "week"
-    
+
 
 class Span(str, Enum):
     day = "day"
@@ -41,10 +41,12 @@ class Bounds(str, Enum):
     extended = "extended"
 
 
-def round_to_nearest_half_dollar(price: float | Decimal, option_type: OptionType) -> Decimal:
-    if option_type == 'call':
+def round_to_nearest_half_dollar(
+    price: float | Decimal, option_type: OptionType
+) -> Decimal:
+    if option_type == OptionType.call:
         return Decimal(math.ceil(price * 2) / 2)
-    if option_type == 'put':
+    if option_type == OptionType.put:
         return Decimal(math.floor(price * 2) / 2)
 
 
@@ -54,7 +56,7 @@ def log_in() -> dict | None:
     r.login(os.getenv("EMAIL"), os.getenv("PASSWORD"), mfa_code=totp)
 
 
-def current_stock_price(ticker: str| list[str]) -> dict | list[dict]:
+def current_stock_price(ticker: str | list[str]) -> dict | list[dict]:
     price_list = r.stocks.get_latest_price(ticker)
     if len(price_list) == 1:
         return Decimal(price_list[0])
@@ -82,24 +84,29 @@ def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
         return curated_info[0]
     return curated_info
 
+
 # Note: Extended and Trading hours FORCE you to use a 'day' time window - whatever
 # Note: Default args for the daily pre-market prep - shift args for subsequent calls as needed
 def get_stock_historical_price_deltas(
-    ticker: str | list[str], 
+    ticker: str | list[str],
     candle_interval: Optional[Interval] = Interval.ten_min,
     time_window: Optional[Span] = Span.day,
-    trading_hours: Optional[Bounds] = Bounds.extended
-    ) -> list[dict]:
+    trading_hours: Optional[Bounds] = Bounds.extended,
+) -> list[dict]:
     curated_data = []
-    raw_data = r.stocks.get_stock_historicals(ticker, candle_interval, time_window, trading_hours)
+    raw_data = r.stocks.get_stock_historicals(
+        ticker, candle_interval, time_window, trading_hours
+    )
     for entry in raw_data:
-        curated_data.append({
-            # Time is UTC so market hours are 14:30 to 21:00
-            "datetime": entry["begins_at"],
-            "open_to_close_price_delta": (
-                str(Decimal(entry["close_price"]) - Decimal(entry["open_price"]))
-            ),
-        })
+        curated_data.append(
+            {
+                # Time is UTC so market hours are 14:30 to 21:00
+                "datetime": entry["begins_at"],
+                "open_to_close_price_delta": (
+                    str(Decimal(entry["close_price"]) - Decimal(entry["open_price"]))
+                ),
+            }
+        )
     return curated_data
 
 
@@ -112,21 +119,21 @@ def get_closest_strike_price(ticker: str, option_type: OptionType) -> Decimal:
     logger.info(
         f"Current Stock price: {price} \nFinding closest out-of-the-money strike price..."
     )
-    
+
     if r.options.find_options_by_strike(
         ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
     ):
         logger.info(f"Closest strike price: {nearest_half_dollar_increment}")
         return nearest_half_dollar_increment
-    
+
     for i in range(4):
-        if option_type == 'call':
+        if option_type == "call":
             nearest_half_dollar_increment = nearest_half_dollar_increment + Decimal(0.5)
-        if option_type == 'put':
+        if option_type == "put":
             nearest_half_dollar_increment = nearest_half_dollar_increment - Decimal(0.5)
 
         if r.options.find_options_by_strike(
-        ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
+            ticker, nearest_half_dollar_increment, option_type, info="expiration_date"
         ):
             logger.info(f"Closest strike price: {nearest_half_dollar_increment}")
             return nearest_half_dollar_increment
