@@ -30,6 +30,11 @@ def log_in() -> dict | None:
     totp = pyotp.TOTP(os.getenv("MFA_CODE")).now()
     r.login(os.getenv("EMAIL"), os.getenv("PASSWORD"), mfa_code=totp)
 
+def current_stock_price(ticker: str| list[str]) -> dict | list[dict]:
+    price_list = r.stocks.get_latest_price(ticker)
+    if len(price_list) == 1:
+        return Decimal(price_list[0])
+    return [Decimal(price) for price in price_list]
 
 def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
     """
