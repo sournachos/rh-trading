@@ -1,11 +1,9 @@
-import sys
-sys.path.append("../")
-from utils import log_in, get_closest_strike_price, get_stock_historical_price_deltas, current_stock_price
+from utils import get_stock_historical_price_deltas, log_in
 
 log_in()
 
 # Just testing shit
-get_stock_historical_price_deltas('aapl')
+print(get_stock_historical_price_deltas("aapl"))
 # apple_call_strike_price = get_closest_strike_price('aapl', 'call')
 # apple_put_strike_price = get_closest_strike_price('aapl', 'put')
 
@@ -13,13 +11,13 @@ get_stock_historical_price_deltas('aapl')
 # print(f"The closest call strike price {apple_call_strike_price}")
 # print(f"The closest put strike price {apple_put_strike_price}")
 #
-# 
-# 
-# 
-#----------------------------------------------------------------------------
+#
+#
+#
+# ----------------------------------------------------------------------------
 #
 # Alright so I think for a first strat something like comparing the rate of
-# price change in the past 60, 30, 15, 10, 5 and 1min to get a general idea 
+# price change in the past 60, 30, 15, 10, 5 and 1min to get a general idea
 # of direction to buy and sell an option contract as soon as there is profit.
 
 # Potential Basic Flow:

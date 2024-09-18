@@ -1,4 +1,6 @@
 import pyotp
+
+
 def log_in() -> dict | None:
     # grab the key from Robinhood (Security & Privacy section) and paste it below
     # save the value below in your .env as MFA_CODE
@@ -6,5 +8,5 @@ def log_in() -> dict | None:
     # copy the code printed and put it into your Robinhood app to link it
     print(totp)
 
-log_in()
 
+log_in()
