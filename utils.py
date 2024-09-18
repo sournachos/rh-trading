@@ -2,7 +2,6 @@ import math
 import os
 from datetime import datetime, timedelta
 from decimal import Decimal
-from enum import Enum
 from typing import Any, Optional
 
 import pyotp
@@ -11,34 +10,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from exceptions import NoStrikePriceError
-
-
-class OptionType(str, Enum):
-    call = "call"
-    put = "put"
-
-
-class Interval(str, Enum):
-    five_min = "5minute"
-    ten_min = "10minute"
-    hour = "hour"
-    day = "day"
-    week = "week"
-
-
-class Span(str, Enum):
-    day = "day"
-    week = "week"
-    month = "month"
-    three_months = "3months"
-    year = "year"
-    five_years = "5year"
-
-
-class Bounds(str, Enum):
-    regular = "regular"
-    trading = "trading"
-    extended = "extended"
+from models import Bounds, Interval, OptionType, Span
 
 
 def round_to_nearest_half_dollar(
@@ -53,7 +25,7 @@ def round_to_nearest_half_dollar(
 def log_in() -> dict | None:
     load_dotenv()
     totp = pyotp.TOTP(os.getenv("MFA_CODE")).now()
-    r.login(os.getenv("EMAIL"), os.getenv("PASSWORD"), mfa_code=totp)
+    return r.login(os.getenv("EMAIL"), os.getenv("PASSWORD"), mfa_code=totp)
 
 
 def current_stock_price(ticker: str | list[str]) -> dict | list[dict]:

@@ -11,5 +11,5 @@ def log_in():
     # copy the totp code printed and put it into your Robinhood app to link it
     print(totp)
 
-log_in()
 
+log_in()
