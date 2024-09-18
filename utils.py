@@ -44,9 +44,9 @@ class Bounds(str, Enum):
 def round_to_nearest_half_dollar(
     price: float | Decimal, option_type: OptionType
 ) -> Decimal:
-    if option_type == "call":
+    if option_type == OptionType.call:
         return Decimal(math.ceil(price * 2) / 2)
-    if option_type == "put":
+    if option_type == OptionType.put:
         return Decimal(math.floor(price * 2) / 2)
 
 
