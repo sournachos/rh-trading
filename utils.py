@@ -13,6 +13,14 @@ from exceptions import NoStrikePriceError
 from models import Bounds, Interval, OptionType, Span
 
 
+def closest_friday() -> str:
+    '''Returns the nearest Friday as a string in YYYY-MM-DD format'''
+    today = datetime.today()
+    return (today + timedelta((4 - today.weekday()) % 7)).strftime(
+        "%Y-%m-%d"
+    )
+
+
 def round_to_nearest_half_dollar(
     price: float | Decimal, option_type: OptionType
 ) -> Decimal:
@@ -129,10 +137,7 @@ def get_nearest_out_of_the_money_option_contract_details(
     """
     if not exp_date:
         # Calculate the nearest Friday
-        today = datetime.today()
-        next_friday = (today + timedelta((4 - today.weekday()) % 7)).strftime(
-            "%Y-%m-%d"
-        )
+        next_friday = closest_friday()
     if details := r.options.find_options_by_expiration_and_strike(
         inputSymbols=ticker,
         optionType=call_or_put,
