@@ -29,7 +29,7 @@ ___
 
 ## :information_source: About
 
-The site facilitates access to information about the congressmen and congresswomen of Texas. <br>
+The project aims to facilitate access to buying and selling option contracts through Robinhood for profit (or at least that's the goal lol)<br>
 ### *** ***Work in progress.*** *** ### 
 <br>
 
