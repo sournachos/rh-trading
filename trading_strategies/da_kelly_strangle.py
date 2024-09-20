@@ -15,7 +15,7 @@ def kelly_criterion(prob_win, payout_ratio):
 
 # Function to monitor volatility (using implied volatility as a proxy)
 def get_implied_volatility(ticker, exp_date, option):
-    options = r.options.get_option_market_data(ticker, exp_date, option['strike_price'], option['type'])
+    options = r.options.get_option_market_data(ticker, exp_date, option['strike_price'], option['type'])[0]
     iv_values = [Decimal(option['implied_volatility']) for option in options if 'implied_volatility' in option]
     return sum(iv_values) / len(iv_values) if iv_values else 0
 
@@ -162,6 +162,7 @@ def trade_strangle_with_kelly(ticker , capital):
         # payout_ratio = 2.0  # Example value
         
         # Calculate position size based on the Kelly Criterion
+        # NOTE: 1 contract each (call & put) for now
         # position_size = calculate_position_size(prob_win, payout_ratio, capital)
         # logger.info(f"Position Size: ${position_size:.2f}")
         
