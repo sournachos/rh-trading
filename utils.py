@@ -30,6 +30,15 @@ def round_to_nearest_half_dollar(
         return Decimal(math.floor(price * 2) / 2)
 
 
+def calculate_mean(list) -> Decimal:
+    return Decimal(sum(list) / len(list))
+
+
+def calculate_std_dev(list, mean: Decimal) -> Decimal:
+    variance = sum((x - mean) ** 2 for x in list) / len(list)
+    return Decimal(math.sqrt(variance))
+
+
 def log_in() -> dict | None:
     load_dotenv()
     totp = pyotp.TOTP(os.getenv("MFA_CODE")).now()
