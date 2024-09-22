@@ -1,24 +1,3 @@
-from decimal import Decimal
-import sys
-
-from loguru import logger
-sys.path.append("../")
-from models import Interval
-from utils import get_stock_historical_price_deltas, log_in, buy_option_limit_order, calculate_mean, get_nearest_out_of_the_money_option_contract_details, calculate_std_dev
-
-log_in()
-
-# Just testing shit
-# print(get_stock_historical_price_deltas("aapl"))
-# apple_call_strike_price = get_closest_strike_price('aapl', 'call')
-# apple_put_strike_price = get_closest_strike_price('aapl', 'put')
-
-# print(f"\n\nThe current stock price {current_stock_price('aapl')}")
-# print(f"The closest call strike price {apple_call_strike_price}")
-# print(f"The closest put strike price {apple_put_strike_price}")
-#
-# ----------------------------------------------------------------------------
-#
 # Alright so I think for a first strat something like comparing the rate of
 # price change in the past 60, 30, 15, 10, 5 and 1min to get a general idea
 # of direction to buy and sell an option contract as soon as there is profit.
@@ -30,6 +9,15 @@ log_in()
 #   - Once bought, check prices every 5sec to sell (Not sure if Robinhood will throttle)
 #   - We'll need to think about stop losses, settling for profits under .05 after x time
 #     to reduce risk and prioritize profit, etc.
+# import sys
+# sys.path.append("../")
+from decimal import Decimal
+from loguru import logger
+from models import Interval
+from utils import get_stock_historical_price_deltas, log_in, buy_option_limit_order, calculate_mean, get_nearest_out_of_the_money_option_contract_details, calculate_std_dev
+
+log_in()
+
 
 def identify_price_changes(ticker, chunk_interval_in_min:int) -> list[list]:
     '''Given a ticker and interval, it returns a list[list]
@@ -83,7 +71,6 @@ def history_repeats_itself(ticker, chunk_interval_in_min:int = 15):
         #     put_details["fair_midpoint_price"]
         # )
         logger.info('Simulated buy PUT')
-    print(get_nearest_out_of_the_money_option_contract_details(ticker, 'call'))
     
     # Add option monitoring for take-profit and stop-loss below
     
