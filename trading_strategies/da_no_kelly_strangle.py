@@ -3,8 +3,8 @@
 # Monitoring to sell is every 10sec (2 API calls)
 # When selling, take-profit or stop-loss, it sell the CALL and PUT (2 API calls)
 
-import sys
-sys.path.append("../")
+# import sys
+# sys.path.append("../")
 from loguru import logger
 from utils import closest_friday, log_in
 import robin_stocks.robinhood as r
