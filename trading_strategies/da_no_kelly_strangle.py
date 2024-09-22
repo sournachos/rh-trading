@@ -31,7 +31,7 @@ def find_best_strikes(ticker, exp_date):
 def buy_strangle(ticker, call_option, put_option):
     # Place a market order for the call and put options
     bought_call = r.options.order_buy_option_limit('open', 'debit', call_option['adjusted_mark_price_round_down'], ticker, 1, call_option['expiration_date'], call_option['strike_price'], 'call')
-    bought_put = r.options.order_buy_option_limit('open', 'debit', call_option['adjusted_mark_price_round_down'], ticker, 1, put_option['expiration_date'], put_option['strike_price'], 'put')
+    bought_put = r.options.order_buy_option_limit('open', 'debit', put_option['adjusted_mark_price_round_down'], ticker, 1, put_option['expiration_date'], put_option['strike_price'], 'put')
 
     return bought_call, bought_put
     
