@@ -1,9 +1,12 @@
+import sys
+sys.path.append("../")
+from models import Interval
 from utils import get_stock_historical_price_deltas, log_in
 
 log_in()
 
 # Just testing shit
-print(get_stock_historical_price_deltas("aapl"))
+# print(get_stock_historical_price_deltas("aapl"))
 # apple_call_strike_price = get_closest_strike_price('aapl', 'call')
 # apple_put_strike_price = get_closest_strike_price('aapl', 'put')
 
@@ -24,3 +27,17 @@ print(get_stock_historical_price_deltas("aapl"))
 #   - Once bought, check prices every 5sec to sell (Not sure if Robinhood will throttle)
 #   - We'll need to think about stop losses, settling for profits under .05 after x time
 #     to reduce risk and prioritize profit, etc.
+
+def identify_general_trend(ticker, chunk_interval:int):
+    chunked_deltas = []
+    deltas_ten_min_interval = get_stock_historical_price_deltas(ticker, Interval.five_min)
+    for delta in range(0, len(deltas_ten_min_interval), int(chunk_interval/5)):
+        chunked_deltas.append([delta["open_to_close_price_delta"] for delta in deltas_ten_min_interval[delta:delta+int(chunk_interval/5)]])
+    return chunked_deltas
+
+def history_repeats_itself(ticker):
+    chunked_deltas = identify_general_trend(ticker, chunk_interval_in_min=15)
+    print(chunked_deltas)
+    
+
+history_repeats_itself('aapl')
