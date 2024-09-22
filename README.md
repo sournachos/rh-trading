@@ -58,5 +58,5 @@ The project was created using the following external libraries:
 This project is using an MIT license. Click here [LICENSE](LICENSE) for more details.
 
 ### Contributors
-[Jose](https://github.com/sournachos)
+[Jose](https://github.com/sournachos)<br/>
 [Dave](https://github.com/davechamp50)
