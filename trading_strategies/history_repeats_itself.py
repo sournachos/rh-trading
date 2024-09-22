@@ -1,3 +1,4 @@
+from decimal import Decimal
 import sys
 sys.path.append("../")
 from models import Interval
@@ -28,15 +29,22 @@ log_in()
 #   - We'll need to think about stop losses, settling for profits under .05 after x time
 #     to reduce risk and prioritize profit, etc.
 
-def identify_general_trend(ticker, chunk_interval:int):
+def identify_general_trend(ticker, chunk_interval_in_min:int) -> list[list]:
+    '''Given a ticker and interval, it returns a list[list]
+        where the child lists contain the stock price movement
+        for the specified interval.
+        A positive number is an uptrend
+        A negative number is a downtrend
+    '''
     chunked_deltas = []
     deltas_ten_min_interval = get_stock_historical_price_deltas(ticker, Interval.five_min)
-    for delta in range(0, len(deltas_ten_min_interval), int(chunk_interval/5)):
-        chunked_deltas.append([delta["open_to_close_price_delta"] for delta in deltas_ten_min_interval[delta:delta+int(chunk_interval/5)]])
+    for delta in range(0, len(deltas_ten_min_interval), int(chunk_interval_in_min/5)):
+        chunked_deltas.append([str(sum([Decimal(delta["open_to_close_price_delta"]) for delta in deltas_ten_min_interval[delta:delta+int(chunk_interval_in_min/5)]]))])
     return chunked_deltas
 
-def history_repeats_itself(ticker):
-    chunked_deltas = identify_general_trend(ticker, chunk_interval_in_min=15)
+def history_repeats_itself(ticker, chunk_interval_in_min:int = 15):
+    # Use 5, 10, 15, 30, 60min intervals
+    chunked_deltas = identify_general_trend(ticker, chunk_interval_in_min)
     print(chunked_deltas)
     
 
