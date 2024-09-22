@@ -4,7 +4,7 @@ import sys
 from loguru import logger
 sys.path.append("../")
 from models import Interval
-from utils import get_stock_historical_price_deltas, log_in, calculate_mean, calculate_std_dev
+from utils import get_stock_historical_price_deltas, log_in, buy_option_limit_order, calculate_mean, get_nearest_out_of_the_money_option_contract_details, calculate_std_dev
 
 log_in()
 
@@ -62,10 +62,29 @@ def history_repeats_itself(ticker, chunk_interval_in_min:int = 15):
     
     # throwing numbers on these IFs - testing pending for legit logical parameters
     if mean > 0.15 and ma_of_chunk >= 0.15 and std_dev < 0.10:
+        call_details = get_nearest_out_of_the_money_option_contract_details(ticker, 'call')
+        # call_option = buy_option_limit_order(
+        #     ticker,
+        #     'call', 
+        #     call_details["strike_price"], 
+        #     call_details["expiration_date"],
+        #     1,
+        #     call_details["fair_midpoint_price"]
+        # )
         logger.info('Simulated buy CALL')
     if mean < -0.15 and ma_of_chunk <= -0.15 and std_dev < 0.10:
+        put_details = get_nearest_out_of_the_money_option_contract_details(ticker, 'put')
+        # put_option = buy_option_limit_order(
+        #     ticker,
+        #     'put', 
+        #     put_details["strike_price"], 
+        #     put_details["expiration_date"],
+        #     1,
+        #     put_details["fair_midpoint_price"]
+        # )
         logger.info('Simulated buy PUT')
-        
+    print(get_nearest_out_of_the_money_option_contract_details(ticker, 'call'))
+    
     # Add option monitoring for take-profit and stop-loss below
     
     
