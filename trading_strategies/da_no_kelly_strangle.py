@@ -10,16 +10,17 @@ from utils import closest_friday, log_in
 import robin_stocks.robinhood as r
 from decimal import Decimal
 import time
+from models import OptionType
 
-log_in()
+
 
 # Function to fetch the nearest expiration date and most profitable strike
-def find_best_strikes(ticker, exp_date):
+def find_best_strikes(ticker, exp_date)-> tuple[dict, dict]:
     stock_price = Decimal(r.stocks.get_latest_price(ticker)[0])
     
     # Fetch call and put options for the nearest expiration date
-    call_options = r.options.find_options_by_expiration(ticker, expirationDate=exp_date, optionType='call')
-    put_options = r.options.find_options_by_expiration(ticker, expirationDate=exp_date, optionType='put')
+    call_options = r.options.find_options_by_expiration(ticker, expirationDate=exp_date, optionType=OptionType.call)
+    put_options = r.options.find_options_by_expiration(ticker, expirationDate=exp_date, optionType=OptionType.put)
 
     # Find the strike prices closest to the current stock price
     best_call_option = min(call_options, key=lambda x: abs(Decimal(x['strike_price']) - stock_price))
@@ -28,15 +29,15 @@ def find_best_strikes(ticker, exp_date):
     return best_call_option, best_put_option
 
 # Function to buy a strangle (one call, one put)
-def buy_strangle(ticker, call_option, put_option):
+def buy_strangle(ticker, call_option, put_option) -> tuple[dict, dict]:
     # Place a market order for the call and put options
-    bought_call = r.options.order_buy_option_limit('open', 'debit', call_option['adjusted_mark_price_round_down'], ticker, 1, call_option['expiration_date'], call_option['strike_price'], 'call')
-    bought_put = r.options.order_buy_option_limit('open', 'debit', put_option['adjusted_mark_price_round_down'], ticker, 1, put_option['expiration_date'], put_option['strike_price'], 'put')
-
+    # TODO: This should use the utils function to place a limit order
+    bought_call = r.options.order_buy_option_limit('open', 'debit', call_option['adjusted_mark_price_round_down'], ticker, 1, call_option['expiration_date'], call_option['strike_price'], OptionType.call)
+    bought_put = r.options.order_buy_option_limit('open', 'debit', put_option['adjusted_mark_price_round_down'], ticker, 1, put_option['expiration_date'], put_option['strike_price'], OptionType.put))
     return bought_call, bought_put
     
 # Monitor the trade for take-profit or stop-loss
-def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
+def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02) -> None:
     initial_call_price = Decimal(call_option['adjusted_mark_price_round_down'])
     initial_put_price = Decimal(put_option['adjusted_mark_price_round_down'])
     
@@ -56,9 +57,10 @@ def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
 
         if profit_pct >= take_profit:
             logger.info("Take-profit triggered, closing positions.")
+            # TODO: All these sell orders should use a utils function, AND most importantly, we need to monitor if we've actually sold the contracts. Putting them up for sale doesn't mean they've been sold.
             r.options.order_sell_option_limit(
                 symbol=call_option['chain_symbol'],
-                option_type='call',
+                option_type=OptionType.call,
                 strike_price=call_option['strike_price'],
                 expirationDate=call_option['expiration_date'],
                 price=ideal_call_price,
@@ -67,7 +69,7 @@ def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
             )
             r.options.order_sell_option_limit(
                 symbol=put_option['chain_symbol'],
-                option_type='put',
+                option_type=OptionType.put),
                 strike_price=put_option['strike_price'],
                 expirationDate=put_option['expiration_date'],
                 price=ideal_put_price,
@@ -79,7 +81,7 @@ def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
             logger.info("Stop-loss triggered, closing positions.")
             r.options.order_sell_option_limit(
                 symbol=call_option['chain_symbol'],
-                option_type='call',
+                option_type=OptionType.call,
                 strike_price=call_option['strike_price'],
                 expirationDate=call_option['expiration_date'],
                 price=call_option['adjusted_mark_price'],
@@ -88,7 +90,7 @@ def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
             )
             r.options.order_sell_option_limit(
                 symbol=put_option['chain_symbol'],
-                option_type='put',
+                option_type=OptionType.put),
                 strike_price=put_option['strike_price'],
                 expirationDate=put_option['expiration_date'],
                 price=put_option['adjusted_mark_price'],
@@ -101,7 +103,7 @@ def monitor_trade(call_option, put_option, take_profit=0.05, stop_loss=0.02):
         time.sleep(10)
 
 # Function to calculate prob_win using Greeks
-def calculate_prob_win(call_option, put_option):
+def calculate_prob_win(call_option, put_option) -> Decimal:
     # Use delta to calculate prob of winning
     delta_call = Decimal(call_option.get('delta', 0))
     delta_put = Decimal(put_option.get('delta', 0))
@@ -116,7 +118,7 @@ def calculate_prob_win(call_option, put_option):
     return prob_win
 
 # Main trading loop
-def trade_strangle_without_kelly(ticker):
+def trade_strangle_without_kelly(ticker) -> None:
     # Get best option strike prices for the nearest Friday
     exp_date = closest_friday()
     call_option, put_option = find_best_strikes(ticker, exp_date)
@@ -148,5 +150,8 @@ def trade_strangle_without_kelly(ticker):
     else:
         logger.info(f"Volatility {avg_iv} is below the threshold of {high_vol_threshold}. Skipping trade.")
 
-# Execute the strategy
-trade_strangle_without_kelly('AAPL')
+
+if __name__ == '__main__':
+    log_in()
+    # Execute the strategy
+    trade_strangle_without_kelly('AAPL')
