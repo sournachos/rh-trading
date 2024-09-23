@@ -49,41 +49,72 @@ Time-Based Exit: Sell all positions at 3:30 PM to avoid end-of-day volatility.
 This strategy uses a combination of trend indicators, risk management, and time-based exits to systematically trade options. Keep in mind that this is a basic framework and should be tested and refined using historical data before live trading.
 """
 
-
-def should_buy_option(short_ma, long_ma, rsi, bid_ask_spread):
-    # Check if short MA crosses above long MA and RSI is below 70
-    return short_ma > long_ma and rsi < 70 and bid_ask_spread <= 0.02
+from loguru import logger
+from strategy import Strategy
 
 
-def trade_call_option(stock_data, option_data, current_time):
-    purchase_price = None
-    highest_price = None
+def calculate_moving_average(data, period):
+    if len(data) < period:
+        return sum(data) / len(data)
+    return sum(data[-period:]) / period
 
-    # Buy the option if conditions are met
-    if should_buy_option(
-        stock_data["short_ma"],
-        stock_data["long_ma"],
-        stock_data["rsi"],
-        option_data["bid_ask_spread"],
+
+def calculate_rsi(data, period=14):
+    gains, losses = 0, 0
+    for i in range(1, len(data)):
+        delta = data[i] - data[i - 1]
+        if delta > 0:
+            gains += delta
+        else:
+            losses -= delta
+
+    if len(data) < period:
+        avg_gain = gains / len(data)
+        avg_loss = losses / len(data)
+    else:
+        avg_gain = gains / period
+        avg_loss = losses / period
+
+    if avg_loss == 0:
+        return 100
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
+
+
+class MovingAverageStrategy(Strategy):
+    def __init__(
+        self, rsi_threshold_low: int, rsi_threshold_high: int, rsi_period: int
     ):
-        purchase_price = option_data["ask_price"]
-        highest_price = purchase_price
+        self.rsi_threshold_low = rsi_threshold_low
+        self.rsi_threshold_high = rsi_threshold_high
+        self.rsi_period = rsi_period
 
-    while current_time < "15:30":
-        # Get the latest option price
-        current_price = get_current_option_price()
+    def should_buy(self) -> bool:
+        ma_5 = calculate_moving_average(data, 5)
+        ma_30 = calculate_moving_average(data, 30)
+        rsi = calculate_rsi(data, rsi_period)
+        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
 
-        # Stop-loss: Sell if down 20%
-        if current_price < purchase_price * 0.8:
-            sell_option(current_price)
-            break
+        if ma_5 > ma_30 and rsi < self.rsi_threshold_low:
+            return True
+        return False
 
-        # Trailing stop: Sell if down 5% from highest
-        highest_price = max(highest_price, current_price)
-        if current_price < highest_price * 0.95:
-            sell_option(current_price)
-            break
+    def should_sell(self) -> bool:
+        ma_5 = calculate_moving_average(data, 5)
+        ma_30 = calculate_moving_average(data, 30)
+        rsi = calculate_rsi(data, rsi_period)
+        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
 
-    # Exit all positions at 3:30 PM
-    if current_time >= "15:30":
-        sell_option(current_price)
+        if ma_5 < ma_30 or rsi > self.rsi_threshold_high:
+            return True
+        return False
+
+    def should_wait(self) -> bool:
+        ma_5 = calculate_moving_average(data, 5)
+        ma_30 = calculate_moving_average(data, 30)
+        rsi = calculate_rsi(data, rsi_period)
+        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
+
+        if self.rsi_threshold_low < rsi < self.rsi_threshold_high:
+            return True
+        return False

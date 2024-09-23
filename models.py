@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class Action(str, Enum):
+    buy = "buy"
+    sell = "sell"
+    wait = "wait"
+
+
 class OptionType(str, Enum):
     call = "call"
     put = "put"

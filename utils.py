@@ -14,11 +14,32 @@ from models import Bounds, Interval, OptionType, Span
 
 
 def closest_friday() -> str:
-    '''Returns the nearest Friday as a string in YYYY-MM-DD format'''
+    """Returns the nearest Friday as a string in YYYY-MM-DD format"""
     today = datetime.today()
-    return (today + timedelta((4 - today.weekday()) % 7)).strftime(
-        "%Y-%m-%d"
+    return (today + timedelta((4 - today.weekday()) % 7)).strftime("%Y-%m-%d")
+
+
+# Function to fetch the nearest expiration date and most profitable strike
+def find_best_strikes(ticker, exp_date) -> tuple[dict, dict]:
+    stock_price = Decimal(r.stocks.get_latest_price(ticker)[0])
+
+    # Fetch call and put options for the nearest expiration date
+    call_options = r.options.find_options_by_expiration(
+        ticker, expirationDate=exp_date, optionType=OptionType.call
     )
+    put_options = r.options.find_options_by_expiration(
+        ticker, expirationDate=exp_date, optionType=OptionType.put
+    )
+
+    # Find the strike prices closest to the current stock price
+    best_call_option = min(
+        call_options, key=lambda x: abs(Decimal(x["strike_price"]) - stock_price)
+    )
+    best_put_option = min(
+        put_options, key=lambda x: abs(Decimal(x["strike_price"]) - stock_price)
+    )
+
+    return best_call_option, best_put_option
 
 
 def round_to_nearest_half_dollar(
@@ -72,6 +93,15 @@ def get_stock_basic_info(ticker: str | list[str]) -> dict | list[dict]:
     if len(curated_info) == 1:
         return curated_info[0]
     return curated_info
+
+
+def at_stop_loss(
+    position: dict, current_price: Decimal, stop_loss_percentage: Decimal
+) -> bool:
+    entry_price = position["entry_price"]  # Get this somehow
+    loss = (entry_price - current_price) / entry_price
+    logger.info(f"Current loss: {loss}")
+    return loss >= stop_loss_percentage
 
 
 # Note: Extended and Trading hours FORCE you to use a 'day' time window - whatever
@@ -194,6 +224,7 @@ def buy_option_limit_order(
     quantity: int,
     option_price: float | Decimal,
 ) -> dict | Any:
+    raise Exception("Don't want to buy options right now")
     return r.orders.order_buy_option_limit(
         positionEffect="open",
         creditOrDebit="debit",
@@ -204,4 +235,28 @@ def buy_option_limit_order(
         strike=strike_price,
         optionType=call_or_put,
         timeInForce="gfd",  # Defaulting to 'good for the day'
+    )
+
+
+def sell_option_limit_order(
+    ticker: str,
+    call_or_put: OptionType,
+    strike_price: float | Decimal,
+    exp_date: str,
+    quantity: int,
+    option_price: float | Decimal,
+    time_in_force: str = "gtc",
+) -> dict | Any:
+    # TODO: We need to monitor if we've actually sold the contracts. Putting them up for sale doesn't mean they've been sold.
+    raise Exception("Don't want to sell options right now")
+    return r.orders.order_sell_option_limit(
+        positionEffect="close",
+        creditOrDebit="credit",
+        price=option_price,
+        symbol=ticker,
+        quantity=quantity,
+        expirationDate=exp_date,
+        strike=strike_price,
+        optionType=call_or_put,
+        timeInForce=time_in_force,
     )

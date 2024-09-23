@@ -1,0 +1,2 @@
+from moving_averages import MovingAverageStrategy
+from strategy import Strategy
