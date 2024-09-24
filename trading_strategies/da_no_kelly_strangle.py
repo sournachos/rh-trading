@@ -5,8 +5,6 @@
 
 import time
 from decimal import Decimal
-import time
-from decimal import Decimal
 
 import robin_stocks.robinhood as r
 from loguru import logger
@@ -19,14 +17,7 @@ from utils import (
     log_in,
     sell_option_limit_order,
 )
-from models import OptionType
-from utils import (
-    buy_option_limit_order,
-    closest_friday,
-    find_best_strikes,
-    log_in,
-    sell_option_limit_order,
-)
+
 
 
 # Function to buy a strangle (one call, one put)
