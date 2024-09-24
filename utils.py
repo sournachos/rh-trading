@@ -231,6 +231,7 @@ def buy_option_limit_order(
     exp_date: str,
     quantity: int,
     option_price: float | Decimal,
+    time_in_force: str = "ioc",
 ) -> dict | Any:
     raise Exception("Don't want to buy options right now")
     return r.orders.order_buy_option_limit(
@@ -242,7 +243,7 @@ def buy_option_limit_order(
         expirationDate=exp_date,
         strike=strike_price,
         optionType=call_or_put,
-        timeInForce="gfd",  # Defaulting to 'good for the day'
+        timeInForce=time_in_force,  # Defaulting to 'immediate or cancel'
     )
 
 
@@ -253,9 +254,8 @@ def sell_option_limit_order(
     exp_date: str,
     quantity: int,
     option_price: float | Decimal,
-    time_in_force: str = "gtc",
+    time_in_force: str = "ioc",
 ) -> dict | Any:
-    # TODO: We need to monitor if we've actually sold the contracts. Putting them up for sale doesn't mean they've been sold.
     raise Exception("Don't want to sell options right now")
     return r.orders.order_sell_option_limit(
         positionEffect="close",
@@ -266,5 +266,5 @@ def sell_option_limit_order(
         expirationDate=exp_date,
         strike=strike_price,
         optionType=call_or_put,
-        timeInForce=time_in_force,
+        timeInForce=time_in_force,  # Defaulting to 'immediate or cancel'
     )

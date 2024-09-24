@@ -10,6 +10,7 @@
 #   - We'll need to think about stop losses, settling for profits under .05 after x time
 #     to reduce risk and prioritize profit, etc.
 # import sys
+import time
 
 # sys.path.append("../")
 from decimal import Decimal
@@ -67,36 +68,40 @@ def history_repeats_itself(ticker, chunk_interval_in_min: int = 15):
     # throwing numbers on these IFs - testing pending for legit logical parameters
     if mean > 0.15 and ma_of_chunk >= 0.15 and std_dev < 0.10:
         bought = False
-        call_details = get_nearest_out_of_the_money_option_contract_details(
-            ticker, "call"
-        )
-        call_option = buy_option_limit_order(
-            ticker,
-            "call",
-            call_details["strike_price"],
-            call_details["expiration_date"],
-            1,
-            call_details["fair_midpoint_price"],
-        )
         while not bought:
+            call_details = get_nearest_out_of_the_money_option_contract_details(
+                ticker, "call"
+            )
+            call_option = buy_option_limit_order(
+                ticker,
+                "call",
+                call_details["strike_price"],
+                call_details["expiration_date"],
+                1,
+                call_details["fair_midpoint_price"],
+            )
+            time.sleep(2)
+            # Any option order is set to immediately fill or be cancelled
             bought = is_option_position_bought(call_option["id"])
         logger.info(
-            f"Buy order filled - 1 CCALL contract - {ticker} for {call_details['fair_midpoint_price']}"
+            f"Buy order filled - 1 CALL contract - {ticker} for {call_details['fair_midpoint_price']}"
         )
     if mean < -0.15 and ma_of_chunk <= -0.15 and std_dev < 0.10:
         bought = False
-        put_details = get_nearest_out_of_the_money_option_contract_details(
-            ticker, "put"
-        )
-        put_option = buy_option_limit_order(
-            ticker,
-            "put",
-            put_details["strike_price"],
-            put_details["expiration_date"],
-            1,
-            put_details["fair_midpoint_price"],
-        )
         while not bought:
+            put_details = get_nearest_out_of_the_money_option_contract_details(
+                ticker, "put"
+            )
+            put_option = buy_option_limit_order(
+                ticker,
+                "put",
+                put_details["strike_price"],
+                put_details["expiration_date"],
+                1,
+                put_details["fair_midpoint_price"],
+            )
+            # Any option order is set to immediately fill or be cancelled
+            time.sleep(2)
             bought = is_option_position_bought(put_option["id"])
         logger.info(
             f"Buy order filled - 1 PUT contract - {ticker} for {call_details['fair_midpoint_price']}"
