@@ -221,7 +221,7 @@ def is_option_position_open(option_id) -> bool:
     for position in open_positions:
         if option_id == position["id"]:
             return True
-        return False
+    return False
 
 
 def buy_option_limit_order(
