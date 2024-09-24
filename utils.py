@@ -217,11 +217,11 @@ def get_nearest_out_of_the_money_option_contract_details(
 
 
 def is_option_position_bought(option_id) -> bool:
-    open_positions = r.options.get_all_option_positions()
+    open_positions = r.options.get_open_option_positions()
     for position in open_positions:
         if option_id == position["id"]:
-            return False  # order is still open/not filled
-    return True  # order is not open/filled
+            return True  # position is open/bought
+    return False  # order is not open/not bought
 
 
 def buy_option_limit_order(
