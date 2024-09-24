@@ -20,6 +20,7 @@ def closest_friday() -> str:
 
 
 # Function to fetch the nearest expiration date and most profitable strike
+# ~14sec slower on avg than `get_closest_strike_price()`
 def find_best_strikes(ticker, exp_date) -> tuple[dict, dict]:
     stock_price = Decimal(r.stocks.get_latest_price(ticker)[0])
 
@@ -175,7 +176,6 @@ def get_nearest_out_of_the_money_option_contract_details(
             - Default -> Nearest Friday
     """
     if not exp_date:
-        # Calculate the nearest Friday
         next_friday = closest_friday()
     if details := r.options.find_options_by_expiration_and_strike(
         inputSymbols=ticker,
@@ -214,6 +214,14 @@ def get_nearest_out_of_the_money_option_contract_details(
     logger.warning(
         "Requested stock has no active or tradable options contract. Try a different stock, option type, etc"
     )
+
+
+def is_option_position_open(option_id) -> bool:
+    open_positions = r.options.get_all_option_positions()
+    for position in open_positions:
+        if option_id == position["id"]:
+            return True
+        return False
 
 
 def buy_option_limit_order(
