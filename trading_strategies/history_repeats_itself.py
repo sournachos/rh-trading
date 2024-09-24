@@ -23,7 +23,7 @@ from utils import (
     calculate_std_dev,
     get_nearest_out_of_the_money_option_contract_details,
     get_stock_historical_price_deltas,
-    is_option_position_open,
+    is_option_position_bought,
     log_in,
 )
 
@@ -66,36 +66,46 @@ def history_repeats_itself(ticker, chunk_interval_in_min: int = 15):
 
     # throwing numbers on these IFs - testing pending for legit logical parameters
     if mean > 0.15 and ma_of_chunk >= 0.15 and std_dev < 0.10:
+        bought = False
         call_details = get_nearest_out_of_the_money_option_contract_details(
             ticker, "call"
         )
-        # call_option = buy_option_limit_order(
-        #     ticker,
-        #     "call",
-        #     call_details["strike_price"],
-        #     call_details["expiration_date"],
-        #     1,
-        #     call_details["fair_midpoint_price"],
-        # )
-        logger.info("Simulated buy CALL")
+        call_option = buy_option_limit_order(
+            ticker,
+            "call",
+            call_details["strike_price"],
+            call_details["expiration_date"],
+            1,
+            call_details["fair_midpoint_price"],
+        )
+        while not bought:
+            bought = is_option_position_bought(call_option["id"])
+        logger.info(
+            f"Buy order filled - 1 CCALL contract - {ticker} for {call_details['fair_midpoint_price']}"
+        )
     if mean < -0.15 and ma_of_chunk <= -0.15 and std_dev < 0.10:
+        bought = False
         put_details = get_nearest_out_of_the_money_option_contract_details(
             ticker, "put"
         )
-        # put_option = buy_option_limit_order(
-        #     ticker,
-        #     "put",
-        #     put_details["strike_price"],
-        #     put_details["expiration_date"],
-        #     1,
-        #     put_details["fair_midpoint_price"],
-        # )
-        logger.info("Simulated buy PUT")
+        put_option = buy_option_limit_order(
+            ticker,
+            "put",
+            put_details["strike_price"],
+            put_details["expiration_date"],
+            1,
+            put_details["fair_midpoint_price"],
+        )
+        while not bought:
+            bought = is_option_position_bought(put_option["id"])
+        logger.info(
+            f"Buy order filled - 1 PUT contract - {ticker} for {call_details['fair_midpoint_price']}"
+        )
 
     # Add option monitoring for take-profit and stop-loss below
     # the calls below are to confirm both sold and bough option contracts
-    # is_option_position_open(call_option)
-    # is_option_position_open(put_option)
+    # is_option_position_bought(call_option)
+    # is_option_position_bought(put_option)
 
 
 # Use 5, 10, 15, 30, 60min intervals
