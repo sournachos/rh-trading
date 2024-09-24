@@ -107,10 +107,7 @@ def history_repeats_itself(ticker, chunk_interval_in_min: int = 15):
             f"Buy order filled - 1 PUT contract - {ticker} for {call_details['fair_midpoint_price']}"
         )
 
-    # Add option monitoring for take-profit and stop-loss below
-    # the calls below are to confirm both sold and bough option contracts
-    # is_option_position_bought(call_option)
-    # is_option_position_bought(put_option)
+    # Add option monitoring for selling for a take-profit and stop-loss below
 
 
 # Use 5, 10, 15, 30, 60min intervals
