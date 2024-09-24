@@ -108,13 +108,3 @@ class MovingAverageStrategy(Strategy):
         if ma_5 < ma_30 or rsi > self.rsi_threshold_high:
             return True
         return False
-
-    def should_wait(self) -> bool:
-        ma_5 = calculate_moving_average(data, 5)
-        ma_30 = calculate_moving_average(data, 30)
-        rsi = calculate_rsi(data, rsi_period)
-        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
-
-        if self.rsi_threshold_low < rsi < self.rsi_threshold_high:
-            return True
-        return False

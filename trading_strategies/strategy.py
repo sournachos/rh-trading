@@ -22,6 +22,3 @@ class Strategy:
     def should_sell(self) -> bool:
         # implement partial functions so we can check stop loss every time we call should_sell
         raise NotImplementedError
-
-    def should_wait(self) -> bool:
-        raise NotImplementedError

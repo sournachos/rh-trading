@@ -33,7 +33,7 @@ def main(strat: Strategy) -> None:
                 logger.info("Selling because of strategy signal")
                 # sell_option_limit_order
                 break
-            elif strat.should_wait():
+            else:
                 logger.info("Waiting for a signal to sell")
                 continue
         else:
