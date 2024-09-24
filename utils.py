@@ -257,6 +257,7 @@ def sell_option_limit_order(
     time_in_force: str = "ioc",
 ) -> dict | Any:
     raise Exception("Don't want to sell options right now")
+    # TODO: We need to monitor if we've actually sold the contracts. Putting them up for sale doesn't mean they've been sold.
     return r.orders.order_sell_option_limit(
         positionEffect="close",
         creditOrDebit="credit",
