@@ -245,7 +245,7 @@ def is_option_position_bought(option_id) -> bool:
 
 
 @ensure_orders_are_filled
-def monitor_trade(
+def monitor_trade_and_sell(
     option, take_profit: Decimal = 0.05, stop_loss: Decimal = 0.02
 ) -> None:
     initial_total_value = Decimal(option["fair_midpoint_price"] or option["mark_price"])

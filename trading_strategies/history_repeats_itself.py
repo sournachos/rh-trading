@@ -27,7 +27,7 @@ from utils import (
     get_stock_historical_price_deltas,
     is_option_position_bought,
     log_in,
-    monitor_trade,
+    monitor_trade_and_sell,
 )
 
 log_in()
@@ -122,7 +122,7 @@ def history_repeats_itself(
         logger.info(
             f"Buy order filled - 1 PUT contract - {ticker} - {put_details["fair_midpoint_price"]}"
         )
-    monitor_trade(
+    monitor_trade_and_sell(
         option=call_details or put_details,
         take_profit=Decimal(take_profit),
         stop_loss=Decimal(stop_loss),

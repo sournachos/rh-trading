@@ -15,7 +15,7 @@ from utils import (
     closest_friday,
     find_best_strikes,
     log_in,
-    monitor_trade,
+    monitor_trade_and_sell,
     sell_option_limit_order,
 )
 
@@ -85,11 +85,11 @@ def trade_strangle_without_kelly(ticker) -> None:
             # Buy the strangle with same-week expiration
             # bought_call, bought_put = buy_strangle(ticker, call_option, put_option)
             logger.info("Simulated buy and started monitoring")
-            calls_sold = monitor_trade(call_option)
-            puts_sold = monitor_trade(put_option)
+            calls_sold = monitor_trade_and_sell(call_option)
+            puts_sold = monitor_trade_and_sell(put_option)
             # Monitor the trade for take-profit and stop-loss
-            # calls_bought = monitor_trade(bought_call)
-            # puts_bought = monitor_trade(bought_put)
+            # calls_bought = monitor_trade_and_sell(bought_call)
+            # puts_bought = monitor_trade_and_sell(bought_put)
         else:
             logger.info("LOW probability of winning. Skipping trade.")
     else:
