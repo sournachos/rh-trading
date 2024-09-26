@@ -1,5 +1,6 @@
 import math
 import os
+import time
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Optional
@@ -222,6 +223,75 @@ def is_option_position_bought(option_id) -> bool:
         if option_id == position["id"]:
             return True  # position is open/bought
     return False  # order is not open/not bought
+
+
+def monitor_trade(
+    call_option, put_option, take_profit: Decimal = 0.05, stop_loss: Decimal = 0.02
+) -> None:
+    initial_call_price = Decimal(call_option["fair_midpoint_price"])
+    initial_put_price = Decimal(put_option["fair_midpoint_price"])
+
+    initial_total_value = initial_call_price + initial_put_price
+
+    while True:
+        # Refresh option data
+        refreshed_call = r.options.get_option_market_data_by_id(call_option["id"])[0]
+        refreshed_put = r.options.get_option_market_data_by_id(put_option["id"])[0]
+        ideal_call_price = (
+            Decimal(refreshed_call["adjusted_mark_price"])
+            + Decimal(refreshed_call["ask_price"])
+        ) / 2
+        ideal_put_price = (
+            Decimal(refreshed_put["adjusted_mark_price"])
+            + Decimal(refreshed_put["ask_price"])
+        ) / 2
+
+        current_total_value = ideal_call_price + ideal_put_price
+        profit_pct = (current_total_value - initial_total_value) / initial_total_value
+
+        logger.info(f"Current Profit: {profit_pct*100:.2f}%")
+
+        if profit_pct >= take_profit:
+            logger.info("Take-profit triggered, closing positions.")
+            sold_call = sell_option_limit_order(
+                call_option["chain_symbol"],
+                OptionType.call,
+                call_option["strike_price"],
+                call_option["expiration_date"],
+                1,
+                ideal_call_price,
+            )
+            sold_put = sell_option_limit_order(
+                put_option["chain_symbol"],
+                OptionType.put,
+                put_option["strike_price"],
+                put_option["expiration_date"],
+                1,
+                ideal_put_price,
+            )
+            break
+        elif profit_pct <= -stop_loss:
+            logger.info("Stop-loss triggered, closing positions.")
+            sold_call = sell_option_limit_order(
+                call_option["chain_symbol"],
+                OptionType.call,
+                call_option["strike_price"],
+                call_option["expiration_date"],
+                1,
+                ideal_call_price,
+            )
+            sold_put = sell_option_limit_order(
+                put_option["chain_symbol"],
+                OptionType.put,
+                put_option["strike_price"],
+                put_option["expiration_date"],
+                1,
+                ideal_put_price,
+            )
+            break
+
+        # Sleep for a bit before checking again
+        time.sleep(10)
 
 
 def buy_option_limit_order(

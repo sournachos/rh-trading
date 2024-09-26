@@ -26,6 +26,7 @@ from utils import (
     get_stock_historical_price_deltas,
     is_option_position_bought,
     log_in,
+    monitor_trade,
 )
 
 log_in()
@@ -56,7 +57,9 @@ def identify_price_changes(ticker, chunk_interval_in_min: int) -> list[list]:
     return chunked_deltas
 
 
-def history_repeats_itself(ticker, chunk_interval_in_min: int = 15):
+def history_repeats_itself(
+    ticker, take_profit=0.1, stop_loss=0.5, chunk_interval_in_min: int = 15
+):
     price_changes = identify_price_changes(ticker, chunk_interval_in_min)
     mean = calculate_mean(price_changes[-3:])
     std_dev = calculate_std_dev(price_changes[-3:], mean)
@@ -106,8 +109,12 @@ def history_repeats_itself(ticker, chunk_interval_in_min: int = 15):
         logger.info(
             f"Buy order filled - 1 PUT contract - {ticker} for {call_details['fair_midpoint_price']}"
         )
-
-    # TODO: Add option monitoring for selling for a take-profit and stop-loss below
+    monitor_trade(
+        call_option,
+        put_option,
+        take_profit=Decimal(take_profit),
+        stop_loss=Decimal(stop_loss),
+    )
 
 
 # Use 5, 10, 15, 30, 60min intervals
