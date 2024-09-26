@@ -25,7 +25,6 @@ from utils import (
     ensure_orders_are_filled,
     get_nearest_out_of_the_money_option_contract_details,
     get_stock_historical_price_deltas,
-    is_option_position_bought,
     log_in,
     monitor_trade_and_sell,
 )
