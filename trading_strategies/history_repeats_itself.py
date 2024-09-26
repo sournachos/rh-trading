@@ -105,7 +105,7 @@ def history_repeats_itself(
         )
         # TODO: figure out what to do with 'filled_call'
         # maybe after 3 tries we bump up the price?
-        # a lil more thinking needed
+        # a lil more thinking needed for cases where we can't buy
         filled_call = buy_call(ticker, call_details, positions)
         logger.info(
             f"Buy order filled - 1 CALL contract - {ticker} - {call_details["fair_midpoint_price"]}"
@@ -116,7 +116,7 @@ def history_repeats_itself(
         )
         # TODO: figure out what to do with 'filled_put'
         # maybe after 3 tries we bump up the price?
-        # a lil more thinking needed
+        # a lil more thinking needed for cases where we can't buy
         filled_put = buy_put(ticker, put_details, positions)
         logger.info(
             f"Buy order filled - 1 PUT contract - {ticker} - {put_details["fair_midpoint_price"]}"
