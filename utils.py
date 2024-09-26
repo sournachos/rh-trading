@@ -246,7 +246,7 @@ def is_option_position_bought(option_id) -> bool:
 
 @ensure_orders_are_filled
 def monitor_trade_and_sell(
-    option, take_profit: Decimal = 0.05, stop_loss: Decimal = 0.02
+    option, take_profit: Decimal = 0.05, stop_loss: Decimal = 0.02, positions=1
 ) -> None:
     initial_total_value = Decimal(option["fair_midpoint_price"] or option["mark_price"])
 
@@ -268,7 +268,7 @@ def monitor_trade_and_sell(
             OptionType.call,
             option["strike_price"],
             option["expiration_date"],
-            1,
+            positions,
             current_total_value,
         )
         return [sold_option]
@@ -279,7 +279,7 @@ def monitor_trade_and_sell(
             OptionType.call,
             option["strike_price"],
             option["expiration_date"],
-            1,
+            positions,
             current_total_value,
         )
         return [sold_option]

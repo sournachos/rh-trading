@@ -125,6 +125,7 @@ def history_repeats_itself(
         option=call_details or put_details,
         take_profit=Decimal(take_profit),
         stop_loss=Decimal(stop_loss),
+        positions=positions,
     )
 
 
