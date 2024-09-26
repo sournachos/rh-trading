@@ -22,6 +22,7 @@ from utils import (
     buy_option_limit_order,
     calculate_mean,
     calculate_std_dev,
+    ensure_orders_are_filled,
     get_nearest_out_of_the_money_option_contract_details,
     get_stock_historical_price_deltas,
     is_option_position_bought,
@@ -57,6 +58,32 @@ def identify_price_changes(ticker, chunk_interval_in_min: int) -> list[list]:
     return chunked_deltas
 
 
+@ensure_orders_are_filled
+def buy_call(ticker, call_details):
+    call_option = buy_option_limit_order(
+        ticker,
+        "call",
+        call_details["strike_price"],
+        call_details["expiration_date"],
+        1,
+        call_details["fair_midpoint_price"],
+    )
+    return [call_option]
+
+
+@ensure_orders_are_filled
+def buy_put(ticker, put_details):
+    put_option = buy_option_limit_order(
+        ticker,
+        "put",
+        put_details["strike_price"],
+        put_details["expiration_date"],
+        1,
+        put_details["fair_midpoint_price"],
+    )
+    return [put_option]
+
+
 def history_repeats_itself(
     ticker, take_profit=0.1, stop_loss=0.5, chunk_interval_in_min: int = 15
 ):
@@ -70,48 +97,30 @@ def history_repeats_itself(
 
     # throwing numbers on these IFs - testing pending for legit logical parameters
     if mean > 0.15 and ma_of_chunk >= 0.15 and std_dev < 0.10:
-        bought = False
-        while not bought:
-            call_details = get_nearest_out_of_the_money_option_contract_details(
-                ticker, "call"
-            )
-            call_option = buy_option_limit_order(
-                ticker,
-                "call",
-                call_details["strike_price"],
-                call_details["expiration_date"],
-                1,
-                call_details["fair_midpoint_price"],
-            )
-            time.sleep(2)
-            # Any option order is set to immediately fill or be cancelled
-            bought = is_option_position_bought(call_option["id"])
+        call_details = get_nearest_out_of_the_money_option_contract_details(
+            ticker, "call"
+        )
+        # TODO: figure out what to do with 'filled_call'
+        # maybe after 3 tries we bump up the price?
+        # a lil more thinking needed
+        filled_call = buy_call(ticker, call_details)
         logger.info(
-            f"Buy order filled - 1 CALL contract - {ticker} for {call_details['fair_midpoint_price']}"
+            f"Buy order filled - 1 CALL contract - {ticker} - {call_details["fair_midpoint_price"]}"
         )
     if mean < -0.15 and ma_of_chunk <= -0.15 and std_dev < 0.10:
-        bought = False
-        while not bought:
-            put_details = get_nearest_out_of_the_money_option_contract_details(
-                ticker, "put"
-            )
-            put_option = buy_option_limit_order(
-                ticker,
-                "put",
-                put_details["strike_price"],
-                put_details["expiration_date"],
-                1,
-                put_details["fair_midpoint_price"],
-            )
-            # Any option order is set to immediately fill or be cancelled
-            time.sleep(2)
-            bought = is_option_position_bought(put_option["id"])
+        put_details = get_nearest_out_of_the_money_option_contract_details(
+            ticker, "put"
+        )
+        # TODO: figure out what to do with 'filled_put'
+        # maybe after 3 tries we bump up the price?
+        # a lil more thinking needed
+        filled_put = buy_put(ticker, put_details)
         logger.info(
-            f"Buy order filled - 1 PUT contract - {ticker} for {call_details['fair_midpoint_price']}"
+            f"Buy order filled - 1 PUT contract - {ticker} - {put_details["fair_midpoint_price"]}"
         )
     monitor_trade(
-        call_option,
-        put_option,
+        call_details,
+        put_details,
         take_profit=Decimal(take_profit),
         stop_loss=Decimal(stop_loss),
     )
