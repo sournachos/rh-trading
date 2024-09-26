@@ -85,9 +85,11 @@ def trade_strangle_without_kelly(ticker) -> None:
             # Buy the strangle with same-week expiration
             # bought_call, bought_put = buy_strangle(ticker, call_option, put_option)
             logger.info("Simulated buy and started monitoring")
-            monitor_trade(call_option, put_option)
+            calls_sold = monitor_trade(call_option)
+            puts_sold = monitor_trade(put_option)
             # Monitor the trade for take-profit and stop-loss
-            # monitor_trade(bought_call, bought_put)
+            # calls_bought = monitor_trade(bought_call)
+            # puts_bought = monitor_trade(bought_put)
         else:
             logger.info("LOW probability of winning. Skipping trade.")
     else:

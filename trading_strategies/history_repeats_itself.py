@@ -59,33 +59,37 @@ def identify_price_changes(ticker, chunk_interval_in_min: int) -> list[list]:
 
 
 @ensure_orders_are_filled
-def buy_call(ticker, call_details):
+def buy_call(ticker, call_details, positions=1):
     call_option = buy_option_limit_order(
         ticker,
         "call",
         call_details["strike_price"],
         call_details["expiration_date"],
-        1,
+        positions,
         call_details["fair_midpoint_price"],
     )
     return [call_option]
 
 
 @ensure_orders_are_filled
-def buy_put(ticker, put_details):
+def buy_put(ticker, put_details, positions=1):
     put_option = buy_option_limit_order(
         ticker,
         "put",
         put_details["strike_price"],
         put_details["expiration_date"],
-        1,
+        positions,
         put_details["fair_midpoint_price"],
     )
     return [put_option]
 
 
 def history_repeats_itself(
-    ticker, take_profit=0.1, stop_loss=0.5, chunk_interval_in_min: int = 15
+    ticker,
+    take_profit=0.1,
+    stop_loss=0.05,
+    chunk_interval_in_min: int = 15,
+    positions: int = 1,
 ):
     price_changes = identify_price_changes(ticker, chunk_interval_in_min)
     mean = calculate_mean(price_changes[-3:])
@@ -103,7 +107,7 @@ def history_repeats_itself(
         # TODO: figure out what to do with 'filled_call'
         # maybe after 3 tries we bump up the price?
         # a lil more thinking needed
-        filled_call = buy_call(ticker, call_details)
+        filled_call = buy_call(ticker, call_details, positions)
         logger.info(
             f"Buy order filled - 1 CALL contract - {ticker} - {call_details["fair_midpoint_price"]}"
         )
@@ -114,17 +118,16 @@ def history_repeats_itself(
         # TODO: figure out what to do with 'filled_put'
         # maybe after 3 tries we bump up the price?
         # a lil more thinking needed
-        filled_put = buy_put(ticker, put_details)
+        filled_put = buy_put(ticker, put_details, positions)
         logger.info(
             f"Buy order filled - 1 PUT contract - {ticker} - {put_details["fair_midpoint_price"]}"
         )
     monitor_trade(
-        call_details,
-        put_details,
+        option=call_details or put_details,
         take_profit=Decimal(take_profit),
         stop_loss=Decimal(stop_loss),
     )
 
 
 # Use 5, 10, 15, 30, 60min intervals
-history_repeats_itself("aapl", 5)
+history_repeats_itself("aapl", chunk_interval_in_min=10, positions=1)
