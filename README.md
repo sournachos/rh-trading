@@ -37,13 +37,22 @@ The project aims to facilitate access to buying and selling option contracts thr
 - Python is installed
 - Clone repositoty
 - Install deps -> `pip install -r requirements.txt`
-- As of 9/15 there's only a couple functions in `utils.py` 
+- As of 9/28:
+  - A couple Robinhood strategies in `/trading_strategies`
+  - Skeleton for `jesse` trading bot in `/jesse_bot` using [docker](https://docs.docker.com/get-started/get-docker/)
+- To run `jesse` on docker:
+  - `cd /jesse_bot/docker`
+  - `docker-compose up -d` -- to start
+  - open http://localhost:9000/#/ on your browser
+  - `docker-compose down` -- to stop
+
 
 ## :rocket: Technologies 
 
 The project was created using the following external libraries:
 
 - [robin_stocks](https://github.com/jmfernandes/robin_stocks)
+- [jesse](https://github.com/jesse-ai/jesse)
 
 ## :link: Contributing 
 
