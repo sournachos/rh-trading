@@ -45,6 +45,7 @@ The project aims to facilitate access to buying and selling option contracts thr
   - `docker-compose up -d` -- to start
   - open http://localhost:9000/#/ on your browser
   - `docker-compose down` -- to stop
+- It's important to import the candles of historical data for the timeframe you want to backtest strategies on, and you can do so on the '`Import Candles` section  of the menu once you're running on docker.
 
 
 ## :rocket: Technologies 
