@@ -16,6 +16,7 @@ jesse_bot/storage/trading-view-pine-editor/*.txt
 jesse_bot/storage/temp/optimize/*.pickle
 jesse_bot/storage/orders/*.json
 jesse_bot/storage/logs/trades/*.json
+jesse_bot/storage/logs/backtest-mode
 jesse_bot/storage/logs/collect.txt
 jesse_bot/storage/logs/optimize.txt
 jesse_bot/storage/logs/live-trade.txt
