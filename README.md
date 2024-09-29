@@ -1,4 +1,4 @@
-<div align="center"><img width="100px" height="100px" src="./demo_imgs/flag.gif"> <strong>RH-Trading</strong> &ensp;<img width="100px" height="100px" src="./demo_imgs/flag.gif"></div>
+<div align="center"><img width="100px" height="100px" src="flag.gif"> <strong>RH-Trading</strong> &ensp;<img width="100px" height="100px" src="flag.gif"></div>
 <br/>
 
 <p align="center">
