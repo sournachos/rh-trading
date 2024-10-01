@@ -39,9 +39,9 @@ The project aims to facilitate access to buying and selling option contracts thr
 - Install deps -> `pip install -r requirements.txt`
 - As of 9/28:
   - A couple Robinhood strategies in `/trading_strategies`
-  - Skeleton for `jesse` trading bot in `/jesse_bot` using [docker](https://docs.docker.com/get-started/get-docker/)
+  - Skeleton for `jesse` trading bot in `/data_visualization` using [docker](https://docs.docker.com/get-started/get-docker/)
 - To run `jesse` on docker:
-  - `cd /jesse_bot/docker`
+  - `cd /data_visualization/docker`
   - `docker-compose up -d` -- to start
   - open http://localhost:9000/#/ on your browser
   - `docker-compose down` -- to stop
