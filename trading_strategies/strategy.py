@@ -2,19 +2,9 @@ from decimal import Decimal
 
 
 class Strategy:
-    def __init__(
-        self,
-        ticker: str,
-        rsi_period: int,
-        stop_loss_percentage: Decimal,
-        rsi_threshold_low: int,
-        rsi_threshold_high: int,
-    ):
+    def __init__(self, ticker: str, stop_loss_percentage: Decimal):
         self.ticker = ticker
-        self.rsi_period = rsi_period
         self.stop_loss_percentage = stop_loss_percentage
-        self.rsi_threshold_low = rsi_threshold_low
-        self.rsi_threshold_high = rsi_threshold_high
 
     def should_buy(self) -> bool:
         raise NotImplementedError
