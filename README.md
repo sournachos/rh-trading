@@ -51,8 +51,8 @@ The project aims to facilitate access to buying and selling option contracts thr
   - `docker-compose up -d` -- to start
   - open http://localhost:9000/#/ on your browser
   - `docker-compose down` -- to stop
-- It's important to import the candles of historical data for the timeframe you want to backtest strategies on:
-  - Do so on the `Import Candles` section of the menu once you're running on docker.
+<!-- - It's important to import the candles of historical data for the timeframe you want to backtest strategies on:
+  - Do so on the `Import Candles` section of the menu once you're running on docker. -->
 
 - With the docker container running:
   - Your local port 5432 is forwarded to the Postgres DB so you can use something like [DBViz](https://www.dbvis.com/download/) to get visibility into the data by using the .env postgres username and password
