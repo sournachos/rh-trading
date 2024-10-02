@@ -40,6 +40,12 @@ The project aims to facilitate access to buying and selling option contracts thr
 - As of 9/28:
   - A couple Robinhood strategies in `/trading_strategies`
   - Skeleton for `jesse` trading bot in `/data_visualization` using [docker](https://docs.docker.com/get-started/get-docker/)
+
+- To import historical candle data for a ticker of your choice:
+  - Go to `/data-visualization/.env-example`
+  - Copy the contents into a `.env` in that same folder
+  - Edit the `TICKER_TO_GET_HISTORICAL_CANDLES_FOR`, `HISTORICAL_CANDLES_START_DATE`, and `HISTORICAL_CANDLES_END_DATE` as you need.
+
 - To run `jesse` on docker:
   - `cd /data_visualization/docker`
   - `docker-compose up -d` -- to start
@@ -47,6 +53,9 @@ The project aims to facilitate access to buying and selling option contracts thr
   - `docker-compose down` -- to stop
 - It's important to import the candles of historical data for the timeframe you want to backtest strategies on:
   - Do so on the `Import Candles` section of the menu once you're running on docker.
+
+- With the docker container running:
+  - Your local port 5432 is forwarded to the Postgres DB so you can use something like [DBViz](https://www.dbvis.com/download/) to get visibility into the data by using the .env postgres username and password
 
 
 ## :rocket: Technologies 
