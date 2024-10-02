@@ -60,10 +60,11 @@ The project aims to facilitate access to buying and selling option contracts thr
 
 ## :rocket: Technologies 
 
-The project was created using the following external libraries:
+The project was created using the following external resources:
 
 - [robin_stocks](https://github.com/jmfernandes/robin_stocks)
 - [jesse](https://github.com/jesse-ai/jesse)
+- [Docker](https://docs.docker.com/get-started/)
 
 ## :link: Contributing 
 
