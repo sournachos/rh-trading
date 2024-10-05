@@ -14,7 +14,6 @@ services:
       - "9000:9000"
       # Jupyter Port
       - "8888:8888"
-      # - "5432:5432"
     volumes:
       - ../:/home
     container_name: jesse
