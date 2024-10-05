@@ -30,23 +30,26 @@ ___
 ## :information_source: About
 
 The project aims to facilitate access to buying and selling option contracts through Robinhood for profit (or at least that's the goal lol)<br>
+It also leverages the visualization and backtesting capabilities of the [jesse](https://github.com/jesse-ai/jesse) tool
 ### *** ***Work in progress.*** *** ### 
 <br>
 
 ## :seedling: Requirements To Use
 - Python is installed
-- Clone repositoty
+- Clone repository
 - Install deps -> `pip install -r requirements.txt`
-- As of 9/28:
+- As of 10/05:
   - A couple Robinhood strategies in `/trading_strategies`
-  - Skeleton for `jesse` trading bot in `/data_visualization` using [docker](https://docs.docker.com/get-started/get-docker/)
+  - Leveraging the [jesse](https://github.com/jesse-ai/jesse) tool in `/data_visualization` using [docker](https://docs.docker.com/get-started/get-docker/)
 
 - To import historical candle data for a ticker of your choice:
   - Go to `/data-visualization/.env-example`
   - Copy the contents into a `.env` in that same folder
-  - Edit the `TICKER_TO_GET_HISTORICAL_CANDLES_FOR`, `HISTORICAL_CANDLES_START_DATE`, and `HISTORICAL_CANDLES_END_DATE` as you need.
+  - Edit values if/as needed.
+  - Go to `/data-visualization/import_candles.py`
+  - Edit the `start_date`, `end_date` and `ticker` values as desired to customize the retrieval of historical candle data
 
-- To run `jesse` on docker:
+- To run [jesse](https://github.com/jesse-ai/jesse) on docker:
   - `cd /data_visualization/docker`
   - `docker-compose up -d` -- to start
   - open http://localhost:9000/#/ on your browser
