@@ -49,6 +49,8 @@ Time-Based Exit: Sell all positions at 3:30 PM to avoid end-of-day volatility.
 This strategy uses a combination of trend indicators, risk management, and time-based exits to systematically trade options. Keep in mind that this is a basic framework and should be tested and refined using historical data before live trading.
 """
 
+from decimal import Decimal
+
 from loguru import logger
 from strategy import Strategy
 
@@ -83,8 +85,14 @@ def calculate_rsi(data, period=14):
 
 class MovingAverageStrategy(Strategy):
     def __init__(
-        self, rsi_threshold_low: int, rsi_threshold_high: int, rsi_period: int
+        self,
+        ticker: str,
+        stop_loss_percentage: Decimal,
+        rsi_threshold_low: int,
+        rsi_threshold_high: int,
+        rsi_period: int,
     ):
+        super().__init__(ticker, stop_loss_percentage)
         self.rsi_threshold_low = rsi_threshold_low
         self.rsi_threshold_high = rsi_threshold_high
         self.rsi_period = rsi_period
@@ -92,7 +100,7 @@ class MovingAverageStrategy(Strategy):
     def should_buy(self) -> bool:
         ma_5 = calculate_moving_average(data, 5)
         ma_30 = calculate_moving_average(data, 30)
-        rsi = calculate_rsi(data, rsi_period)
+        rsi = calculate_rsi(data, self.rsi_period)
         logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
 
         if ma_5 > ma_30 and rsi < self.rsi_threshold_low:
@@ -102,7 +110,7 @@ class MovingAverageStrategy(Strategy):
     def should_sell(self) -> bool:
         ma_5 = calculate_moving_average(data, 5)
         ma_30 = calculate_moving_average(data, 30)
-        rsi = calculate_rsi(data, rsi_period)
+        rsi = calculate_rsi(data, self.rsi_period)
         logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
 
         if ma_5 < ma_30 or rsi > self.rsi_threshold_high:
