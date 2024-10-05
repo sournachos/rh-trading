@@ -20,7 +20,15 @@ load_dotenv()
 ticker: str = os.getenv("TICKER_TO_GET_HISTORICAL_CANDLES_FOR")
 start_date: str = os.getenv("HISTORICAL_CANDLES_START_DATE")
 end_date: str = os.getenv("HISTORICAL_CANDLES_END_DATE")
-api_key: str = os.getenv("API_KEY")
+api_keys: str = [
+    os.getenv("API_KEY_1"),
+    os.getenv("API_KEY_2"),
+    os.getenv("API_KEY_3"),
+    os.getenv("API_KEY_4"),
+    os.getenv("API_KEY_5"),
+    os.getenv("API_KEY_6"),
+    os.getenv("API_KEY_7"),
+]
 
 """
 Given a ticker and a date range, it will store historical candle data
@@ -57,6 +65,6 @@ def data_dump(ticker, start_date, end_date, api_key) -> None:
 
 if tickers:
     for ticker in tickers:
-        data_dump(ticker, start_date, end_date, api_key)
+        data_dump(ticker, start_date, end_date, api_keys[0])
 # else:
 #     data_dump(ticker, start_date, end_date, api_key)
