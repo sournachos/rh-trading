@@ -6,29 +6,13 @@ import uuid
 
 import requests
 from dotenv import load_dotenv
-
-# from jesse.modes.import_candles_mode import (
-#     store_candles_list as store_candles_from_list,
-# )
-# from jesse.services.db import database
-
-with open("./stock_lists/mag7.json") as f:
-    tickers = json.load(f)["tickers"]
-print(tickers)
+from jesse.modes.import_candles_mode import (
+    store_candles_list as store_candles_from_list,
+)
+from jesse.services.db import database
 
 load_dotenv()
-ticker: str = os.getenv("TICKER_TO_GET_HISTORICAL_CANDLES_FOR")
-start_date: str = os.getenv("HISTORICAL_CANDLES_START_DATE")
-end_date: str = os.getenv("HISTORICAL_CANDLES_END_DATE")
-api_keys: str = [
-    os.getenv("API_KEY_1"),
-    os.getenv("API_KEY_2"),
-    os.getenv("API_KEY_3"),
-    os.getenv("API_KEY_4"),
-    os.getenv("API_KEY_5"),
-    os.getenv("API_KEY_6"),
-    os.getenv("API_KEY_7"),
-]
+api_key: str = os.getenv("API_KEY")
 
 """
 Given a ticker and a date range, it will store historical candle data
@@ -36,35 +20,42 @@ in the local docker db instance for backtesting strategies on.
 """
 
 
-# extended_hours = "true"  # If sent as a URL parameter, returns data from 4am ET to 8pm ET
-def data_dump(ticker, start_date, end_date, api_key) -> None:
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&apikey={api_key}&interval=1min&extended_hours=false"
-    candles = json.loads(requests.request("GET", url).text)
-    print(candles)
+def db_import(ticker, start_date, end_date, api_key) -> None:
+    headers = {"Accept": "application/json", "Authorization": f"Bearer {api_key}"}
+    url = f"https://api.marketdata.app/v1/stocks/candles/1/{ticker}?from={start_date}&to={end_date}"
+    candles = json.loads(requests.request("GET", url, headers=headers).text)
+    arr = [
+        {
+            "id": str(uuid.uuid4()),
+            "exchange": "NYSE",
+            "symbol": ticker,
+            "timeframe": "1m",
+            "timestamp": candles["t"][i] * 1000,
+            "open": candles["o"][i],
+            "close": candles["c"][i],
+            "high": candles["h"][i],
+            "low": candles["l"][i],
+            "volume": candles["v"][i],
+        }
+        for i in range(len(candles["t"]))
+    ]
+    database.open_connection()
+    store_candles_from_list(arr)
+    database.close_connection()
+
+    with open(f"./ticker_data/{ticker}/candle_data.json", "w") as f:
+        json.dump({"data": arr}, f, indent=4)
 
 
-#     arr = [
-#         {
-#             "id": str(uuid.uuid4()),
-#             "exchange": "NYSE",
-#             "symbol": ticker,
-#             "timeframe": "1m",
-#             "timestamp": candles["t"][i] * 1000,
-#             "open": candles["o"][i],
-#             "close": candles["c"][i],
-#             "high": candles["h"][i],
-#             "low": candles["l"][i],
-#             "volume": candles["v"][i],
-#         }
-#         for i in range(len(candles["t"]))
-#     ]
-#     database.open_connection()
-#     store_candles_from_list(arr)
-#     database.close_connection()
+# Customize ur dates here (free for the last year of data)
+start_date = "2024-01-01"
+end_date = "2024-10-05"
 
+with open("./stock_lists/mag7.json") as f:
+    tickers = json.load(f)["tickers"]
+# OR
+# tickers = ["AAPL"]  # free demo data from the API lol
 
 if tickers:
     for ticker in tickers:
-        data_dump(ticker, start_date, end_date, api_keys[0])
-# else:
-#     data_dump(ticker, start_date, end_date, api_key)
+        db_import(ticker, start_date, end_date, api_key)
