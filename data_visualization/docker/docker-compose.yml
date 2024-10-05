@@ -17,7 +17,8 @@ services:
     volumes:
       - ../:/home
     container_name: jesse
-    command: bash -c "pip install loguru python-dotenv && python ./import_candles.py && jesse install-live --no-strict && jesse run"
+    command: bash -c "python ./run_strat.py && jesse install-live --no-strict && jesse run"
+    # command: bash -c "pip install loguru python-dotenv && python ./import_candles.py && jesse install-live --no-strict && jesse run"
     # command: bash -c "jesse install-live --no-strict && jesse run"
 
   ### PostgreSQL ################################################

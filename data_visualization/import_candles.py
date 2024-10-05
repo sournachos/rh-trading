@@ -28,7 +28,7 @@ def db_import(ticker, start_date, end_date, api_key) -> None:
         {
             "id": str(uuid.uuid4()),
             "exchange": "NYSE",
-            "symbol": ticker,
+            "symbol": f"NYSE-{ticker}",
             "timeframe": "1m",
             "timestamp": candles["t"][i] * 1000,
             "open": candles["o"][i],
@@ -51,10 +51,10 @@ def db_import(ticker, start_date, end_date, api_key) -> None:
 start_date = "2024-01-01"
 end_date = "2024-10-05"
 
-with open("./stock_lists/mag7.json") as f:
-    tickers = json.load(f)["tickers"]
+# with open("./stock_lists/mag7.json") as f:
+#     tickers = json.load(f)["tickers"]
 # OR
-# tickers = ["AAPL"]  # free demo data from the API lol
+tickers = ["AAPL"]  # free demo data from the API lol
 
 if tickers:
     for ticker in tickers:
