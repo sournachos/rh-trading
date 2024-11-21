@@ -49,70 +49,86 @@ Time-Based Exit: Sell all positions at 3:30 PM to avoid end-of-day volatility.
 This strategy uses a combination of trend indicators, risk management, and time-based exits to systematically trade options. Keep in mind that this is a basic framework and should be tested and refined using historical data before live trading.
 """
 
-from decimal import Decimal
 
 from loguru import logger
-from strategy import Strategy
+from strategy import Strategy, StrategyTester
 
 
-def calculate_moving_average(data, period):
-    if len(data) < period:
-        return sum(data) / len(data)
-    return sum(data[-period:]) / period
-
-
-def calculate_rsi(data, period=14):
-    gains, losses = 0, 0
-    for i in range(1, len(data)):
-        delta = data[i] - data[i - 1]
-        if delta > 0:
-            gains += delta
-        else:
-            losses -= delta
-
-    if len(data) < period:
-        avg_gain = gains / len(data)
-        avg_loss = losses / len(data)
-    else:
-        avg_gain = gains / period
-        avg_loss = losses / period
-
-    if avg_loss == 0:
-        return 100
-    rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs))
-
-
+# We dont' know what our data looks like yet so this is just a placeholder
 class MovingAverageStrategy(Strategy):
     def __init__(
         self,
-        ticker: str,
-        stop_loss_percentage: Decimal,
-        rsi_threshold_low: int,
-        rsi_threshold_high: int,
+        data: list[dict],
+        rsi_threshold: int,
         rsi_period: int,
+        short_ma_period: int,
+        long_ma_period: int,
     ):
-        super().__init__(ticker, stop_loss_percentage)
-        self.rsi_threshold_low = rsi_threshold_low
-        self.rsi_threshold_high = rsi_threshold_high
+        super().__init__(data)
+        self.rsi_threshold = rsi_threshold
         self.rsi_period = rsi_period
+        self.short_ma_period = short_ma_period
+        self.long_ma_period = long_ma_period
 
     def should_buy(self) -> bool:
-        ma_5 = calculate_moving_average(data, 5)
-        ma_30 = calculate_moving_average(data, 30)
-        rsi = calculate_rsi(data, self.rsi_period)
-        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
+        ma_short = self._calculate_moving_average(self.short_ma_period)
+        ma_long = self._calculate_moving_average(self.long_ma_period)
+        rsi = self._calculate_rsi()
+        logger.info(f"Short MA: {ma_short}, Long MA: {ma_long}, RSI: {rsi}")
 
-        if ma_5 > ma_30 and rsi < self.rsi_threshold_low:
+        if ma_short > ma_long and rsi < self.rsi_threshold:
+            logger.info("Buying due to moving average crossover and RSI")
             return True
         return False
 
     def should_sell(self) -> bool:
-        ma_5 = calculate_moving_average(data, 5)
-        ma_30 = calculate_moving_average(data, 30)
-        rsi = calculate_rsi(data, self.rsi_period)
-        logger.info(f"MA5: {ma_5}, MA30: {ma_30}, RSI: {rsi}")
+        ma_short = self._calculate_moving_average(self.short_ma_period)
+        ma_long = self._calculate_moving_average(self.long_ma_period)
+        rsi = self._calculate_rsi()
+        logger.info(f"Short MA: {ma_short}, Long MA: {ma_long}, RSI: {rsi}")
 
-        if ma_5 < ma_30 or rsi > self.rsi_threshold_high:
+        if ma_short <= ma_long:
+            logger.info("Selling due to moving average crossover")
             return True
         return False
+
+    def _calculate_rsi(self) -> float:
+        gains, losses = 0, 0
+        for i in range(1, len(self.data)):
+            delta = self.data[i] - self.data[i - 1]
+            if delta > 0:
+                gains += delta
+            else:
+                losses -= delta
+
+        if len(self.data) < self.rsi_period:
+            avg_gain = gains / len(self.data)
+            avg_loss = losses / len(self.data)
+        else:
+            avg_gain = gains / self.rsi_period
+            avg_loss = losses / self.rsi_period
+
+        if avg_loss == 0:
+            return 100
+        rs = avg_gain / avg_loss
+        return 100 - (100 / (1 + rs))
+
+    def _calculate_moving_average(self, ma_period):
+        if len(self.data) < ma_period:
+            return sum(self.data) / len(self.data)
+        return sum(self.data[-ma_period:]) / ma_period
+
+
+class MovingAverageStrategyTester(StrategyTester):
+    @property
+    def strategy_parameters(self) -> dict:
+        return {
+            "rsi_threshold": (60, 80),
+            "rsi_period": (10, 20),
+            "short_ma_period": (1, 10),
+            "long_ma_period": (30, 50),
+        }
+
+    @property
+    def strategy_type(self):
+        return MovingAverageStrategy

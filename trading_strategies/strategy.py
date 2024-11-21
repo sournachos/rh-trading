@@ -1,10 +1,7 @@
-from decimal import Decimal
-
-
 class Strategy:
-    def __init__(self, ticker: str, stop_loss_percentage: Decimal):
-        self.ticker = ticker
-        self.stop_loss_percentage = stop_loss_percentage
+    def __init__(self, data: list[dict]):
+        # This data will be the historical and live prices of the stock
+        self.data = data
 
     def should_buy(self) -> bool:
         raise NotImplementedError
@@ -12,3 +9,16 @@ class Strategy:
     def should_sell(self) -> bool:
         # implement partial functions so we can check stop loss every time we call should_sell
         raise NotImplementedError
+
+
+class StrategyTester:
+    def __init__(self):
+        pass
+
+    @property
+    def strategy_parameters(self) -> dict:
+        return {}
+
+    @property
+    def strategy_type(self):
+        return Strategy

@@ -13,13 +13,17 @@ TICKER = "AAPL"
 STOP_LOSS_PERCENTAGE = 0.15
 
 
+# Might have to encapsulate this in a function so we can backtest it without running the whole thing, especially the time.sleep(10) part
+# Or our backtests can mimic this functionality by calling the should_buy and should_sell methods,
+# but I would prefer to have a single function that can be both tested and run live
 def main(strat: Strategy) -> None:
     log_in()
     position = None
     while True:
         # Get our data. We need things like historical prices, current price, etc.
         # Anything that our strategy needs to make decisions. OR our strategy could do that on it's own
-        # But I'm trying to not have the strategy know about which ticker it's trading or it's current position. That's handled by this loop... I think
+        # But I'm trying to not have the strategy know about which ticker it's trading or it's current position.
+        # That's handled by this loop... I think
         if datetime.now(timezone.utc) >= "20:30":
             logger.info("Selling")
             # sell_option_limit_order
